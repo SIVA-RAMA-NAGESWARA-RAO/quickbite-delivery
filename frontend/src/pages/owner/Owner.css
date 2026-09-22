@@ -1,0 +1,208 @@
+.owner-page { padding: 32px 24px 64px; }
+
+.owner-sub { color: var(--color-muted); margin: 4px 0 0; }
+
+.owner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.owner-header-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.owner-cover-upload {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px dashed var(--color-line);
+}
+
+.owner-cover-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.owner-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  text-align: center;
+  background: var(--color-bg-soft);
+}
+
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-tile {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .stats-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
+.owner-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.owner-menu-list { padding: 20px 22px; }
+.owner-menu-list h2 { font-size: 1.1rem; margin-bottom: 16px; }
+.owner-empty { color: var(--color-muted); font-size: 0.9rem; }
+
+.owner-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-line);
+  flex-wrap: wrap;
+}
+
+.owner-menu-item:last-child { border-bottom: none; }
+
+.owner-menu-item-info { flex: 1; min-width: 120px; }
+
+.owner-item-thumb-upload {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px dashed var(--color-line);
+}
+
+.owner-item-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.owner-item-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--color-muted);
+  background: var(--color-bg-soft);
+}
+
+.owner-menu-name { margin: 0; font-weight: 600; }
+.owner-menu-meta { margin: 2px 0 0; font-size: 0.82rem; color: var(--color-muted); }
+
+.owner-menu-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.owner-form { padding: 22px; }
+.owner-form h2 { font-size: 1.1rem; margin-bottom: 16px; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.owner-form-actions { display: flex; gap: 10px; }
+
+@media (max-width: 900px) {
+  .owner-layout { grid-template-columns: 1fr; }
+}
+
+/* --- Orders kanban --- */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 24px;
+}
+
+.kanban-column {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  min-height: 200px;
+}
+
+.kanban-column h3 {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.kanban-count {
+  background: #fff;
+  border-radius: 100px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.ticket {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.ticket-id { font-weight: 700; margin: 0; }
+.ticket-time { font-size: 0.75rem; color: var(--color-muted); margin: 2px 0 8px; }
+
+.ticket-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+}
+
+.ticket-total { font-weight: 600; margin: 0 0 10px; }
+
+.ticket-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+@media (max-width: 1000px) {
+  .kanban { grid-template-columns: 1fr; }
+}

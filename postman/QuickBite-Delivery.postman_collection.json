@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "QuickBite Delivery",
+    "description": "End-to-end flow through the API Gateway: register a customer and a restaurant owner, set up a restaurant and menu, place an order, and walk it through payment and the accept/reject workflow. Run requests top to bottom on a fresh database.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "customerToken", "value": "" },
+    { "key": "ownerToken", "value": "" },
+    { "key": "restaurantId", "value": "" },
+    { "key": "menuItemId", "value": "" },
+    { "key": "orderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register customer",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('customerToken', data.token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Asha Rao\",\n  \"email\": \"asha@example.com\",\n  \"password\": \"secret12\",\n  \"phone\": \"9999999999\",\n  \"role\": \"CUSTOMER\"\n}" },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Register restaurant owner",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('ownerToken', data.token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Rahul Mehta\",\n  \"email\": \"rahul@spiceroute.example.com\",\n  \"password\": \"secret12\",\n  \"phone\": \"9888888888\",\n  \"role\": \"RESTAURANT_OWNER\"\n}" },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Login (customer)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('customerToken', data.token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"asha@example.com\",\n  \"password\": \"secret12\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Restaurant setup (owner)",
+      "item": [
+        {
+          "name": "Create restaurant",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('restaurantId', data.id);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Spice Route\",\n  \"description\": \"Home-style North Indian curries\",\n  \"cuisineType\": \"Indian\",\n  \"address\": \"12 MG Road\",\n  \"city\": \"Hyderabad\",\n  \"contactPhone\": \"9888888888\"\n}" },
+            "url": "{{baseUrl}}/restaurants"
+          }
+        },
+        {
+          "name": "Add menu item",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('menuItemId', data.id);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Butter Chicken\",\n  \"description\": \"Rich tomato-butter gravy\",\n  \"price\": 280,\n  \"category\": \"Mains\",\n  \"available\": true\n}" },
+            "url": "{{baseUrl}}/restaurants/{{restaurantId}}/menu"
+          }
+        },
+        {
+          "name": "Upload restaurant photo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": [] }]
+            },
+            "url": "{{baseUrl}}/restaurants/{{restaurantId}}/image",
+            "description": "Select an image file in the 'file' field's value before sending (Postman can't ship a bundled binary in a collection export)."
+          }
+        },
+        {
+          "name": "Upload menu item photo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": [] }]
+            },
+            "url": "{{baseUrl}}/restaurants/{{restaurantId}}/menu/{{menuItemId}}/image",
+            "description": "Select an image file in the 'file' field's value before sending."
+          }
+        },
+        {
+          "name": "List restaurants (public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/restaurants"
+          }
+        },
+        {
+          "name": "Get restaurant menu (public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/restaurants/{{restaurantId}}/menu"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ordering (customer)",
+      "item": [
+        {
+          "name": "Place order",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('orderId', data.id);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"restaurantId\": {{restaurantId}},\n  \"items\": [\n    { \"menuItemId\": {{menuItemId}}, \"quantity\": 2 }\n  ],\n  \"deliveryAddress\": \"221B Baker Street, Hyderabad\",\n  \"paymentMethod\": \"UPI\"\n}" },
+            "url": "{{baseUrl}}/orders"
+          }
+        },
+        {
+          "name": "Get order status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}"
+          }
+        },
+        {
+          "name": "My order history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": "{{baseUrl}}/orders/customer/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Fulfilment (owner)",
+      "item": [
+        {
+          "name": "List incoming orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/restaurant/{{restaurantId}}"
+          }
+        },
+        {
+          "name": "Accept order",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}/accept"
+          }
+        },
+        {
+          "name": "Advance to PREPARING",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}/status?target=PREPARING"
+          }
+        },
+        {
+          "name": "Advance to OUT_FOR_DELIVERY",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}/status?target=OUT_FOR_DELIVERY"
+          }
+        },
+        {
+          "name": "Track delivery (simulated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}/tracking",
+            "description": "Only available once the order is OUT_FOR_DELIVERY or DELIVERED. Position is simulated - see docs/ARCHITECTURE.md."
+          }
+        },
+        {
+          "name": "Advance to DELIVERED",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/{{orderId}}/status?target=DELIVERED"
+          }
+        },
+        {
+          "name": "Restaurant order summary (analytics)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ownerToken}}" }],
+            "url": "{{baseUrl}}/orders/restaurant/{{restaurantId}}/summary"
+          }
+        },
+        {
+          "name": "Reject order (alternative to accept)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Out of ingredients\"\n}" },
+            "url": "{{baseUrl}}/orders/{{orderId}}/reject"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. After delivery (customer)",
+      "item": [
+        {
+          "name": "Rate the order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Loved it, will order again!\"\n}" },
+            "url": "{{baseUrl}}/orders/{{orderId}}/rating"
+          }
+        },
+        {
+          "name": "Confirm restaurant rating updated",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/restaurants/{{restaurantId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

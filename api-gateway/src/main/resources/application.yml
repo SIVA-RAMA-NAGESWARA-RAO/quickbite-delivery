@@ -1,0 +1,84 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /auth/${segment}
+
+        - id: restaurant-service
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/**
+          filters:
+            - RewritePath=/api/restaurants/(?<segment>.*), /restaurants/${segment}
+            - RewritePath=/api/restaurants, /restaurants
+
+        - id: restaurant-images
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/images/**
+          filters:
+            - RewritePath=/api/images/(?<segment>.*), /images/${segment}
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - RewritePath=/api/orders/(?<segment>.*), /orders/${segment}
+            - RewritePath=/api/orders, /orders
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - RewritePath=/api/payments/(?<segment>.*), /payments/${segment}
+
+  main:
+    web-application-type: reactive
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:quickbite-super-secret-signing-key-change-me-in-production-0123456789}
+
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+rate-limit:
+  # Generous defaults so normal browsing/Postman use never trips this - tune
+  # down for a live demo of the 429 behaviour (e.g. requests-per-window: 5).
+  requests-per-window: ${RATE_LIMIT_REQUESTS:60}
+  window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:10}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
