@@ -1,19 +1,14 @@
 package com.quickbite.order.client;
-
-import com.quickbite.order.config.FeignClientConfig;
 import com.quickbite.order.dto.external.PaymentRequestDto;
 import com.quickbite.order.dto.external.PaymentResponseDto;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-@FeignClient(name = "payment-service", configuration = FeignClientConfig.class)
-public interface PaymentClient {
-
-    @PostMapping("/payments/process")
-    PaymentResponseDto processPayment(@RequestBody PaymentRequestDto request);
-
-    @PostMapping("/payments/order/{orderId}/refund")
-    PaymentResponseDto refund(@PathVariable("orderId") Long orderId);
+import com.quickbite.payment.dto.PaymentRequest;
+import com.quickbite.payment.entity.PaymentMethod;
+import com.quickbite.payment.service.PaymentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+@Component @RequiredArgsConstructor
+public class PaymentClient {
+  private final PaymentService paymentService;
+  public PaymentResponseDto processPayment(PaymentRequestDto request){var r=paymentService.process(new PaymentRequest(request.orderId(),request.customerId(),request.amount(),PaymentMethod.valueOf(request.method())));return new PaymentResponseDto(r.id(),r.orderId(),r.customerId(),r.amount(),r.method().name(),r.status().name(),r.transactionRef(),r.failureReason(),r.createdAt()==null?null:r.createdAt().toString());}
+  public PaymentResponseDto refund(Long orderId){var r=paymentService.refund(orderId);return new PaymentResponseDto(r.id(),r.orderId(),r.customerId(),r.amount(),r.method().name(),r.status().name(),r.transactionRef(),r.failureReason(),r.createdAt()==null?null:r.createdAt().toString());}
 }
