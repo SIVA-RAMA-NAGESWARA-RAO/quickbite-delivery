@@ -1,0 +1,81 @@
+services:
+  # Remaining QuickBite backend services
+  - type: web
+    runtime: docker
+    name: quickbite-restaurant
+    rootDir: restaurant-service
+    dockerfilePath: restaurant-service/Dockerfile
+    dockerContext: restaurant-service
+    plan: free
+    envVars:
+      - key: EUREKA_URI
+        value: https://quickbite-delivery-30pz.onrender.com/eureka/
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: restaurantdb
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
+
+  - type: web
+    runtime: docker
+    name: quickbite-order
+    rootDir: order-service
+    dockerfilePath: order-service/Dockerfile
+    dockerContext: order-service
+    plan: free
+    envVars:
+      - key: EUREKA_URI
+        value: https://quickbite-delivery-30pz.onrender.com/eureka/
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: orderdb
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: NOTIFICATIONS_EMAIL_ENABLED
+        value: "false"
+
+  - type: web
+    runtime: docker
+    name: quickbite-gateway
+    rootDir: api-gateway
+    dockerfilePath: api-gateway/Dockerfile
+    dockerContext: api-gateway
+    plan: free
+    envVars:
+      - key: EUREKA_URI
+        value: https://quickbite-delivery-30pz.onrender.com/eureka/
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+  # React/Vite frontend
+  - type: web
+    runtime: static
+    name: quickbite-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
