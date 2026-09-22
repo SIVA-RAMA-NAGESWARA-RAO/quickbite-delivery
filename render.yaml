@@ -1,5 +1,53 @@
+# QuickBite complete Render Blueprint
+# Eureka is intentionally NOT included because it is already deployed.
+
+databases:
+  - name: quickbite-db
+    plan: free
+    databaseName: quickbite
+    user: quickbite
+    postgresMajorVersion: "18"
+
+envVarGroups:
+  - name: quickbite-shared
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+
 services:
-  # Remaining QuickBite backend services
+  - type: web
+    runtime: docker
+    name: quickbite-auth
+    rootDir: auth-service
+    dockerfilePath: auth-service/Dockerfile
+    dockerContext: auth-service
+    plan: free
+    autoDeployTrigger: commit
+    envVars:
+      - fromGroup: quickbite-shared
+      - key: EUREKA_URI
+        value: https://quickbite-delivery-30pz.onrender.com/eureka/
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-db
+          property: password
+
   - type: web
     runtime: docker
     name: quickbite-restaurant
@@ -7,21 +55,31 @@ services:
     dockerfilePath: restaurant-service/Dockerfile
     dockerContext: restaurant-service
     plan: free
+    autoDeployTrigger: commit
     envVars:
+      - fromGroup: quickbite-shared
       - key: EUREKA_URI
         value: https://quickbite-delivery-30pz.onrender.com/eureka/
       - key: DB_HOST
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: host
       - key: DB_PORT
-        value: "5432"
+        fromDatabase:
+          name: quickbite-db
+          property: port
       - key: DB_NAME
-        value: restaurantdb
+        fromDatabase:
+          name: quickbite-db
+          property: database
       - key: DB_USER
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: user
       - key: DB_PASSWORD
-        sync: false
-      - key: JWT_SECRET
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: password
       - key: UPLOAD_DIR
         value: /tmp/uploads
 
@@ -32,23 +90,66 @@ services:
     dockerfilePath: order-service/Dockerfile
     dockerContext: order-service
     plan: free
+    autoDeployTrigger: commit
     envVars:
+      - fromGroup: quickbite-shared
       - key: EUREKA_URI
         value: https://quickbite-delivery-30pz.onrender.com/eureka/
       - key: DB_HOST
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: host
       - key: DB_PORT
-        value: "5432"
+        fromDatabase:
+          name: quickbite-db
+          property: port
       - key: DB_NAME
-        value: orderdb
+        fromDatabase:
+          name: quickbite-db
+          property: database
       - key: DB_USER
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: user
       - key: DB_PASSWORD
-        sync: false
-      - key: JWT_SECRET
-        sync: false
+        fromDatabase:
+          name: quickbite-db
+          property: password
       - key: NOTIFICATIONS_EMAIL_ENABLED
         value: "false"
+
+  - type: web
+    runtime: docker
+    name: quickbite-payment
+    rootDir: payment-service
+    dockerfilePath: payment-service/Dockerfile
+    dockerContext: payment-service
+    plan: free
+    autoDeployTrigger: commit
+    envVars:
+      - fromGroup: quickbite-shared
+      - key: EUREKA_URI
+        value: https://quickbite-delivery-30pz.onrender.com/eureka/
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-db
+          property: password
 
   - type: web
     runtime: docker
@@ -57,24 +158,30 @@ services:
     dockerfilePath: api-gateway/Dockerfile
     dockerContext: api-gateway
     plan: free
+    autoDeployTrigger: commit
     envVars:
+      - fromGroup: quickbite-shared
       - key: EUREKA_URI
         value: https://quickbite-delivery-30pz.onrender.com/eureka/
-      - key: JWT_SECRET
-        sync: false
       - key: CORS_ORIGINS
-        sync: false
+        fromService:
+          name: quickbite-frontend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
 
-  # React/Vite frontend
   - type: web
     runtime: static
     name: quickbite-frontend
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
+    autoDeployTrigger: commit
     envVars:
       - key: VITE_API_BASE_URL
-        sync: false
+        fromService:
+          name: quickbite-gateway
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
     routes:
       - type: rewrite
         source: /*
