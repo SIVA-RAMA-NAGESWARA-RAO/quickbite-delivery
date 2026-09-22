@@ -1,0 +1,6 @@
+package com.quickbite.deployment;
+import org.springframework.boot.SpringApplication; import org.springframework.boot.autoconfigure.SpringBootApplication; import org.springframework.boot.autoconfigure.domain.EntityScan; import org.springframework.data.jpa.repository.config.EnableJpaRepositories; import org.springframework.scheduling.annotation.EnableAsync;
+@SpringBootApplication(scanBasePackages={"com.quickbite.auth","com.quickbite.restaurant","com.quickbite.order","com.quickbite.payment","com.quickbite.deployment"})
+@EntityScan(basePackages={"com.quickbite.auth.entity","com.quickbite.restaurant.entity","com.quickbite.order.entity","com.quickbite.payment.entity"})
+@EnableJpaRepositories(basePackages={"com.quickbite.auth.repository","com.quickbite.restaurant.repository","com.quickbite.order.repository","com.quickbite.payment.repository"})
+@EnableAsync public class DeploymentBackendApplication { public static void main(String[] args){SpringApplication.run(DeploymentBackendApplication.class,args);} }
