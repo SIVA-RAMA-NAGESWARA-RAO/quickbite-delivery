@@ -11,14 +11,14 @@ spring:
           enabled: false
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/api/auth/**
           filters:
             - RewritePath=/api/auth/(?<segment>.*), /auth/${segment}
 
         - id: restaurant-service
-          uri: lb://restaurant-service
+          uri: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/restaurants/**
           filters:
@@ -26,14 +26,14 @@ spring:
             - RewritePath=/api/restaurants, /restaurants
 
         - id: restaurant-images
-          uri: lb://restaurant-service
+          uri: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/images/**
           filters:
             - RewritePath=/api/images/(?<segment>.*), /images/${segment}
 
         - id: order-service
-          uri: lb://order-service
+          uri: ${ORDER_SERVICE_URL:http://localhost:8083}
           predicates:
             - Path=/api/orders/**
           filters:
@@ -41,7 +41,7 @@ spring:
             - RewritePath=/api/orders, /orders
 
         - id: payment-service
-          uri: lb://payment-service
+          uri: ${PAYMENT_SERVICE_URL:http://localhost:8084}
           predicates:
             - Path=/api/payments/**
           filters:
@@ -65,8 +65,6 @@ cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
 
 rate-limit:
-  # Generous defaults so normal browsing/Postman use never trips this - tune
-  # down for a live demo of the 429 behaviour (e.g. requests-per-window: 5).
   requests-per-window: ${RATE_LIMIT_REQUESTS:60}
   window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:10}
 
