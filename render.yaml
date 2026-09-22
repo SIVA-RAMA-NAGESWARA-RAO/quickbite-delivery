@@ -19,8 +19,8 @@ services:
     runtime: docker
     name: quickbite-auth
     rootDir: auth-service
-    dockerfilePath: auth-service/Dockerfile
-    dockerContext: auth-service
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeployTrigger: commit
     envVars:
@@ -52,8 +52,8 @@ services:
     runtime: docker
     name: quickbite-restaurant
     rootDir: restaurant-service
-    dockerfilePath: restaurant-service/Dockerfile
-    dockerContext: restaurant-service
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeployTrigger: commit
     envVars:
@@ -87,8 +87,8 @@ services:
     runtime: docker
     name: quickbite-order
     rootDir: order-service
-    dockerfilePath: order-service/Dockerfile
-    dockerContext: order-service
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeployTrigger: commit
     envVars:
@@ -122,8 +122,8 @@ services:
     runtime: docker
     name: quickbite-payment
     rootDir: payment-service
-    dockerfilePath: payment-service/Dockerfile
-    dockerContext: payment-service
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeployTrigger: commit
     envVars:
@@ -155,8 +155,8 @@ services:
     runtime: docker
     name: quickbite-gateway
     rootDir: api-gateway
-    dockerfilePath: api-gateway/Dockerfile
-    dockerContext: api-gateway
+    dockerfilePath: Dockerfile
+    dockerContext: .
     plan: free
     autoDeployTrigger: commit
     envVars:
