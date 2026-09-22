@@ -1,0 +1,17 @@
+FROM node:20-alpine AS frontend-build
+WORKDIR /workspace/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+ENV VITE_API_BASE_URL=
+RUN npm run build
+FROM maven:3.9.9-eclipse-temurin-17 AS backend-build
+WORKDIR /workspace
+COPY . .
+RUN mkdir -p deployment-backend/src/main/resources/static && cp -r frontend/dist/. deployment-backend/src/main/resources/static/
+RUN mvn -f deployment-backend/pom.xml clean package -DskipTests
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=backend-build /workspace/deployment-backend/target/deployment-backend-1.0.0.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
