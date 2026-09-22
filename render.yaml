@@ -1,0 +1,193 @@
+services:
+  - type: web
+    name: quickbite-eureka
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./eureka-server/Dockerfile
+    dockerContext: ./eureka-server
+    envVars:
+      - key: EUREKA_HOSTNAME
+        fromService:
+          type: web
+          name: quickbite-eureka
+          property: host
+      - key: EUREKA_SELF_PRESERVATION
+        value: "true"
+
+  - type: web
+    name: quickbite-auth
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./auth-service/Dockerfile
+    dockerContext: ./auth-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-auth-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-auth-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-auth-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-auth-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-auth-db
+          property: password
+      - key: EUREKA_URI
+        value: http://quickbite-eureka:8761/eureka/
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: quickbite-restaurant
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./restaurant-service/Dockerfile
+    dockerContext: ./restaurant-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-restaurant-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-restaurant-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-restaurant-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-restaurant-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-restaurant-db
+          property: password
+      - key: EUREKA_URI
+        value: http://quickbite-eureka:8761/eureka/
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: quickbite-auth
+          envVarKey: JWT_SECRET
+      - key: UPLOAD_DIR
+        value: /tmp/quickbite-uploads
+
+  - type: web
+    name: quickbite-payment
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./payment-service/Dockerfile
+    dockerContext: ./payment-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-payment-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-payment-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-payment-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-payment-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-payment-db
+          property: password
+      - key: EUREKA_URI
+        value: http://quickbite-eureka:8761/eureka/
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: quickbite-auth
+          envVarKey: JWT_SECRET
+
+  - type: web
+    name: quickbite-order
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./order-service/Dockerfile
+    dockerContext: ./order-service
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: quickbite-order-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: quickbite-order-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: quickbite-order-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: quickbite-order-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: quickbite-order-db
+          property: password
+      - key: EUREKA_URI
+        value: http://quickbite-eureka:8761/eureka/
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: quickbite-auth
+          envVarKey: JWT_SECRET
+      - key: NOTIFICATIONS_EMAIL_ENABLED
+        value: "false"
+
+  - type: web
+    name: quickbite-gateway
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./api-gateway/Dockerfile
+    dockerContext: ./api-gateway
+    envVars:
+      - key: EUREKA_URI
+        value: http://quickbite-eureka:8761/eureka/
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: quickbite-auth
+          envVarKey: JWT_SECRET
+      - key: CORS_ORIGINS
+        value: "*"
+
+  - type: web
+    name: quickbite-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+
+databases:
+  - name: quickbite-auth-db
+    plan: free
+  - name: quickbite-restaurant-db
+    plan: free
+  - name: quickbite-payment-db
+    plan: free
+  - name: quickbite-order-db
+    plan: free
