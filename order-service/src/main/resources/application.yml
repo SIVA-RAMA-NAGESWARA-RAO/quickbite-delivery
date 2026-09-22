@@ -30,6 +30,16 @@ spring:
             enable: true
         transport:
           protocol: smtp
+  cloud:
+    openfeign:
+      client:
+        config:
+          auth-service:
+            url: ${AUTH_SERVICE_URL:http://localhost:8081}
+          restaurant-service:
+            url: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+          payment-service:
+            url: ${PAYMENT_SERVICE_URL:http://localhost:8084}
 
 eureka:
   client:
@@ -44,9 +54,6 @@ security:
 
 notifications:
   email:
-    # Off by default so a fresh checkout works with zero mail setup - see
-    # README for how to point this at a real account (e.g. Gmail + an app
-    # password) if you want real emails sent during a demo.
     enabled: ${NOTIFICATIONS_EMAIL_ENABLED:false}
 
 feign:
